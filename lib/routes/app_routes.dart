@@ -4,7 +4,7 @@ import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
 import '../pages/auth/forgot_password_page.dart';
 import '../pages/auth/reset_password_page.dart';
-import '../pages/home_page.dart';
+import 'package:only_flick_flutter/pages/home_page.dart';
 import '../providers/auth_provider.dart';
 
 class AppRoutes {
