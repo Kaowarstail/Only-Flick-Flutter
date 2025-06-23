@@ -11,8 +11,16 @@ class AuthService {
 
       return AuthResponse.fromJson(responseData['data']);
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Erreur de réseau. Vérifiez votre connexion.');
+      if (e is ApiException) {
+        // Personnaliser les messages d'erreur selon le contexte
+        if (e.message.contains('Timeout')) {
+          throw ApiException('Connexion lente. Veuillez réessayer.');
+        } else if (e.message.contains('serveur')) {
+          throw ApiException('Serveur indisponible. Réessayez plus tard.');
+        }
+        rethrow;
+      }
+      throw ApiException('Erreur de connexion. Vérifiez votre réseau.');
     }
   }
 
@@ -30,8 +38,16 @@ class AuthService {
 
       return AuthResponse.fromJson(responseData['data']);
     } catch (e) {
-      if (e is ApiException) rethrow;
-      throw ApiException('Erreur de réseau. Vérifiez votre connexion.');
+      if (e is ApiException) {
+        // Personnaliser les messages d'erreur selon le contexte
+        if (e.message.contains('Timeout')) {
+          throw ApiException('Connexion lente. Veuillez réessayer.');
+        } else if (e.message.contains('serveur')) {
+          throw ApiException('Serveur indisponible. Réessayez plus tard.');
+        }
+        rethrow;
+      }
+      throw ApiException('Erreur de connexion. Vérifiez votre réseau.');
     }
   }
 

@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()..initAuth()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
@@ -33,22 +33,15 @@ class MyApp extends StatelessWidget {
             theme: AppTheme.lightTheme,
             initialRoute: AppRoutes.login,
             onGenerateRoute: AppRoutes.generateRoute,
-            home: FutureBuilder(
-              future: authProvider.initAuth(),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Scaffold(
+            home: authProvider.isLoading
+                ? const Scaffold(
                     body: Center(
                       child: CircularProgressIndicator(),
                     ),
-                  );
-                }
-                
-                return authProvider.isAuthenticated 
+                  )
+                : authProvider.isAuthenticated 
                     ? const HomePage() 
-                    : const LoginPage();
-              },
-            ),
+                    : const LoginPage(),
           );
         },
       ),
