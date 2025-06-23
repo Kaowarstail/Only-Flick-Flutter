@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth_widgets.dart';
+import '../../widgets/password_requirements.dart';
 import '../../theme/app_theme.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _usernameController = TextEditingController();
+  bool _showPasswordRequirements = false;
 
   @override
   void dispose() {
@@ -138,6 +140,16 @@ class _RegisterPageState extends State<RegisterPage> {
                   controller: _passwordController,
                   isPassword: true,
                   prefixIcon: Icons.lock_outline,
+                  onTap: () {
+                    setState(() {
+                      _showPasswordRequirements = true;
+                    });
+                  },
+                  onChanged: (value) {
+                    setState(() {
+                      // Déclencher la mise à jour des exigences en temps réel
+                    });
+                  },
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Veuillez saisir un mot de passe';
@@ -145,12 +157,19 @@ class _RegisterPageState extends State<RegisterPage> {
                     if (value.length < 8) {
                       return 'Le mot de passe doit contenir au moins 8 caractères';
                     }
-                    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$').hasMatch(value)) {
-                      return 'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre';
+                    if (value.length > 100) {
+                      return 'Le mot de passe ne peut pas dépasser 100 caractères';
+                    }
+                    if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$').hasMatch(value)) {
+                      return 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial';
                     }
                     return null;
                   },
                 ),
+                if (_showPasswordRequirements) ...[
+                  const SizedBox(height: 12),
+                  PasswordRequirements(password: _passwordController.text),
+                ],
                 const SizedBox(height: 20),
                 
                 // Confirmation mot de passe

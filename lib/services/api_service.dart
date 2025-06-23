@@ -113,21 +113,23 @@ class ApiService {
   static Map<String, dynamic> _handleResponse(http.Response response) {
     final responseData = jsonDecode(response.body);
 
-    // Vérifier le format de réponse standard de l'API Golang
+    // Vérifier le statut de la réponse HTTP
     if (response.statusCode >= 200 && response.statusCode < 300) {
-      if (responseData['success'] == true) {
-        return responseData;
-      } else {
-        throw ApiException(
-          responseData['error']?['message'] ?? 'Erreur inconnue',
-          response.statusCode,
-        );
-      }
+      // Réponse de succès
+      return responseData;
     } else {
-      throw ApiException(
-        responseData['error']?['message'] ?? 'Erreur ${response.statusCode}',
-        response.statusCode,
-      );
+      // Réponse d'erreur - le backend Go utilise le format {"error": "message"}
+      String errorMessage = 'Erreur ${response.statusCode}';
+      
+      if (responseData is Map<String, dynamic>) {
+        if (responseData.containsKey('error')) {
+          errorMessage = responseData['error'].toString();
+        } else if (responseData.containsKey('message')) {
+          errorMessage = responseData['message'].toString();
+        }
+      }
+      
+      throw ApiException(errorMessage, response.statusCode);
     }
   }
 
