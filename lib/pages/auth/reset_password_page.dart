@@ -135,8 +135,8 @@ class _ResetPasswordPageState extends State<ResetPasswordPage> {
               if (value.length < 8) {
                 return 'Le mot de passe doit contenir au moins 8 caractères';
               }
-              if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$').hasMatch(value)) {
-                return 'Le mot de passe doit contenir au moins une minuscule, une majuscule et un chiffre';
+              if (!RegExp(r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).+$').hasMatch(value)) {
+                return 'Le mot de passe doit contenir au moins une minuscule, une majuscule, un chiffre et un caractère spécial';
               }
               return null;
             },

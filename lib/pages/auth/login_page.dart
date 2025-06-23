@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../providers/auth_provider.dart';
 import '../../widgets/auth_widgets.dart';
 import '../../theme/app_theme.dart';
+import '../../debug/debug_api_test.dart';
 import 'register_page.dart';
 import 'forgot_password_page.dart';
 
@@ -202,6 +203,33 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     );
                   },
+                ),
+                const SizedBox(height: 16),
+                
+                // Bouton de débogage temporaire
+                ElevatedButton(
+                  onPressed: () async {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Démarrage des tests de connectivité...'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
+                    await DebugApiTest.runTests();
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Tests terminés - vérifiez la console'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text('🔍 Test Connectivité API'),
                 ),
                 const SizedBox(height: 40),
                 
