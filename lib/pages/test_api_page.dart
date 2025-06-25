@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
+import '../services/like_service.dart';
 
 class TestApiPage extends StatefulWidget {
   const TestApiPage({super.key});
@@ -34,6 +35,29 @@ class _TestApiPageState extends State<TestApiPage> {
     }
   }
 
+  Future<void> _testLikeApi() async {
+    setState(() {
+      _loading = true;
+      _result = 'Testing like functionality...';
+    });
+
+    try {
+      // Test toggle like on content ID 1 with a test user ID
+      final result = await LikeService.toggleLike(1, "test-user-123");
+      setState(() {
+        _result = 'Like toggle success! Liked: $result';
+      });
+    } catch (e) {
+      setState(() {
+        _result = 'Like test error: $e';
+      });
+    } finally {
+      setState(() {
+        _loading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,6 +74,13 @@ class _TestApiPageState extends State<TestApiPage> {
               child: _loading 
                 ? const CircularProgressIndicator() 
                 : const Text('Test Contents API'),
+            ),
+            const SizedBox(height: 10),
+            ElevatedButton(
+              onPressed: _loading ? null : _testLikeApi,
+              child: _loading 
+                ? const CircularProgressIndicator() 
+                : const Text('Test Like API (CORS)'),
             ),
             const SizedBox(height: 20),
             Text(
