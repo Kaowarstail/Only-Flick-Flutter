@@ -1,6 +1,5 @@
 // Script de debug pour tester l'authentification
 import 'package:flutter/material.dart';
-import 'lib/services/api_service.dart';
 import 'lib/services/auth_service.dart';
 
 void main() async {

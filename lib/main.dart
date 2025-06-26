@@ -3,9 +3,11 @@ import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'theme/app_theme.dart';
 import 'providers/auth_provider.dart';
+import 'providers/content_interaction_provider.dart';
+import 'services/content_interaction_service.dart';
 import 'routes/app_routes.dart';
 import 'pages/auth/login_page.dart';
-import 'pages/home_page.dart';
+import 'pages/instagram_style_home_page.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +26,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()..initAuth()),
+        ChangeNotifierProvider(create: (_) => ContentInteractionProvider()),
+        ChangeNotifierProvider(create: (_) => ContentInteractionService()),
       ],
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
@@ -40,7 +44,7 @@ class MyApp extends StatelessWidget {
                     ),
                   )
                 : authProvider.isAuthenticated 
-                    ? const HomePage() 
+                    ? const InstagramStyleHomePage() 
                     : const LoginPage(),
           );
         },

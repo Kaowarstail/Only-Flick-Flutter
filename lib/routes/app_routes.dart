@@ -4,7 +4,7 @@ import '../pages/auth/login_page.dart';
 import '../pages/auth/register_page.dart';
 import '../pages/auth/forgot_password_page.dart';
 import '../pages/auth/reset_password_page.dart';
-import '../pages/home_page.dart';
+import '../pages/instagram_style_home_page.dart';
 import '../providers/auth_provider.dart';
 
 class AppRoutes {
@@ -46,7 +46,7 @@ class AppRoutes {
           builder: (_) => Consumer<AuthProvider>(
             builder: (context, authProvider, child) {
               if (authProvider.isAuthenticated) {
-                return const HomePage();
+                return const InstagramStyleHomePage();
               } else {
                 return const LoginPage();
               }
