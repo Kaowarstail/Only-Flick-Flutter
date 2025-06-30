@@ -4,9 +4,35 @@ import 'api_service.dart';
 
 class CreatorService {
   // Demander le statut de créateur
+  static Future<Map<String, dynamic>> becomeCreator({
+    required String biography,
+    required List<String> categories,
+    String? websiteUrl,
+    Map<String, String>? socialLinks,
+  }) async {
+    try {
+      final requestData = {
+        'biography': biography,
+        'categories': categories,
+        if (websiteUrl != null && websiteUrl.isNotEmpty) 'website_url': websiteUrl,
+        if (socialLinks != null && socialLinks.isNotEmpty) 'social_links': socialLinks,
+      };
+
+      final responseData = await ApiService.post('/creators/become', 
+        body: requestData, 
+        requiresAuth: true
+      );
+      return responseData;
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la demande de statut créateur.');
+    }
+  }
+
+  // Demander le statut de créateur (ancienne méthode pour compatibilité)
   static Future<Creator> requestCreatorStatus() async {
     try {
-      final responseData = await ApiService.post('/creators', requiresAuth: true);
+      final responseData = await ApiService.post('/creators/become', requiresAuth: true);
       return Creator.fromJson(responseData['data']);
     } catch (e) {
       if (e is ApiException) rethrow;

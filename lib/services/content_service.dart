@@ -1,5 +1,6 @@
 import '../models/content_models.dart';
 import '../models/user_models.dart';
+import 'api_service.dart';
 
 class ContentService {
   // Mock data that matches our enhanced GORM seed data
@@ -279,6 +280,41 @@ class ContentService {
       return 'Voir le commentaire';
     } else {
       return 'Voir les $count commentaires';
+    }
+  }
+
+  // Obtenir les contenus d'un créateur organisés par statut premium
+  static Future<Map<String, dynamic>> getCreatorContents(String creatorId, {
+    int page = 1,
+    int size = 20,
+  }) async {
+    try {
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'size': size.toString(),
+      };
+      
+      final query = Uri(queryParameters: queryParams).query;
+      final responseData = await ApiService.get('/creators/$creatorId/contents?$query');
+      
+      return {
+        'creator': responseData['creator'],
+        'free_content': {
+          'contents': (responseData['free_content']['contents'] as List)
+              .map((contentData) => Content.fromJson(contentData))
+              .toList(),
+          'pagination': responseData['free_content']['pagination'],
+        },
+        'premium_content': {
+          'contents': (responseData['premium_content']['contents'] as List)
+              .map((contentData) => Content.fromJson(contentData))
+              .toList(),
+          'pagination': responseData['premium_content']['pagination'],
+        },
+      };
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la récupération des contenus du créateur.');
     }
   }
 }
