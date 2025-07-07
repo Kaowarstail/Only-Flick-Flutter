@@ -1,4 +1,5 @@
-import '../models/user.dart';
+import '../models/user_models.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'api_service.dart';
 
 class AuthService {
@@ -89,5 +90,11 @@ class AuthService {
       if (e is ApiException) rethrow;
       throw ApiException('Erreur de réseau. Vérifiez votre connexion.');
     }
+  }
+
+  // Récupère le token d'authentification stocké
+  static Future<String?> getToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString('auth_token');
   }
 }

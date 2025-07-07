@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import '../models/content_models.dart';
 import '../models/user_models.dart';
-import '../models/user.dart' as auth_user;
 import '../providers/auth_provider.dart';
 import '../services/content_interaction_service.dart';
 import '../theme/app_theme.dart';
@@ -27,20 +26,6 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
   bool _isLoading = true;
 
   // Helper method to convert auth User to content User
-  User? _convertAuthUser(auth_user.User? authUser) {
-    if (authUser == null) return null;
-    
-    return User(
-      id: authUser.id,
-      username: authUser.username,
-      email: authUser.email,
-      profilePicture: authUser.profilePicture,
-      role: UserRole.subscriber, // Default role
-      createdAt: authUser.createdAt,
-      updatedAt: authUser.updatedAt ?? DateTime.now(),
-    );
-  }
-
   @override
   void initState() {
     super.initState();
@@ -76,8 +61,7 @@ class _CommentsBottomSheetState extends State<CommentsBottomSheet> {
     return Consumer2<ContentInteractionService, AuthProvider>(
       builder: (context, interactionService, authProvider, child) {
         final comments = interactionService.getComments(widget.content.id);
-        final authUser = authProvider.user;
-        final currentUser = _convertAuthUser(authUser);
+        final currentUser = authProvider.user;
 
         return Container(
           height: MediaQuery.of(context).size.height * 0.75,

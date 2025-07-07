@@ -9,6 +9,7 @@ import '../services/content_service.dart';
 import '../models/content_models.dart';
 import '../widgets/comments_bottom_sheet.dart';
 import 'profile_page.dart';
+import 'create_content_page.dart';
 
 class InstagramStyleHomePage extends StatefulWidget {
   const InstagramStyleHomePage({super.key});
@@ -23,7 +24,7 @@ class _InstagramStyleHomePageState extends State<InstagramStyleHomePage> {
   final List<Widget> _pages = [
     const FeedPage(),
     const ExplorePage(),
-    const AddContentPage(),
+    const CreateContentPage(),
     const ActivityPage(),
     const ProfilePage(),
   ];
@@ -654,17 +655,6 @@ class ExplorePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Center(
       child: Text('Page Explorer'),
-    );
-  }
-}
-
-class AddContentPage extends StatelessWidget {
-  const AddContentPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Center(
-      child: Text('Ajouter du contenu'),
     );
   }
 }

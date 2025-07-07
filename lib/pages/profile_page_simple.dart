@@ -227,7 +227,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 16),
                       _buildInfoRow('ID', user.id),
-                      _buildInfoRow('Rôle', user.role ?? 'Utilisateur'),
+                      _buildInfoRow('Rôle', user.role.name),
                       _buildInfoRow('Créé le', _formatDate(user.createdAt)),
                       if (user.updatedAt != null)
                         _buildInfoRow('Modifié le', _formatDate(user.updatedAt!)),
