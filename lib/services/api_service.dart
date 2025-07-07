@@ -109,6 +109,45 @@ class ApiService {
     }
   }
 
+  // Méthode pour créer une requête multipart
+  static Future<http.MultipartRequest> createMultipartRequest(
+    String method,
+    String endpoint,
+  ) async {
+    final url = Uri.parse('$_baseUrl$_apiVersion$endpoint');
+    final request = http.MultipartRequest(method, url);
+    
+    // Ajouter les headers d'authentification
+    final authHeaders = await _getAuthHeaders();
+    request.headers.addAll(authHeaders);
+    
+    // Retirer le Content-Type car il sera géré automatiquement par MultipartRequest
+    request.headers.remove('Content-Type');
+    
+    return request;
+  }
+
+  // Méthode pour créer un fichier multipart
+  static Future<http.MultipartFile> createMultipartFile(
+    String field,
+    String filePath,
+  ) async {
+    return await http.MultipartFile.fromPath(field, filePath);
+  }
+
+  // Méthode pour envoyer une requête multipart
+  static Future<Map<String, dynamic>> sendMultipartRequest(
+    http.MultipartRequest request,
+  ) async {
+    try {
+      final streamedResponse = await request.send().timeout(_timeout);
+      final response = await http.Response.fromStream(streamedResponse);
+      return _handleResponse(response);
+    } catch (e) {
+      throw _handleError(e);
+    }
+  }
+
   // Gestion des réponses
   static Map<String, dynamic> _handleResponse(http.Response response) {
     final responseData = jsonDecode(response.body);

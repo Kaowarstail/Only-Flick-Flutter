@@ -48,6 +48,9 @@ dependencies:
   flutter_svg: ^2.0.10+1
   google_fonts: ^6.2.1
 
+  # Image picker for media messages
+  image_picker: ^1.0.7
+
   # State management
   provider: ^6.1.1
 
