@@ -1,5 +1,8 @@
 import '../models/user.dart';
+import '../models/profile_models.dart';
+import '../services/api_service_new.dart';
 import 'api_service.dart';
+import 'dart:io';
 
 class UserService {
   // Obtenir la liste des utilisateurs (admin seulement)
@@ -121,6 +124,119 @@ class UserService {
     } catch (e) {
       if (e is ApiException) rethrow;
       throw ApiException('Erreur lors de la récupération des utilisateurs bloqués.');
+    }
+  }
+
+  // ===== NOUVELLES MÉTHODES D'ÉDITION DE PROFIL =====
+
+  // Obtenir le profil détaillé d'un utilisateur
+  static Future<UserProfile> getUserProfile(String userId) async {
+    try {
+      final responseData = await ApiService.get('/users/$userId/profile', 
+          requiresAuth: true);
+      return UserProfile.fromJson(responseData['data']);
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la récupération du profil utilisateur.');
+    }
+  }
+
+  // Mettre à jour le profil utilisateur
+  static Future<ApiResponse<UserProfile>> updateUserProfile(
+    String userId, 
+    UpdateProfileRequest request
+  ) async {
+    try {
+      final responseData = await ApiServiceNew.put('/users/$userId/profile', 
+          body: request.toJson(), requiresAuth: true);
+      return ApiResponse<UserProfile>.fromJson(
+        responseData, 
+        (data) => UserProfile.fromJson(data as Map<String, dynamic>)
+      );
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la mise à jour du profil.');
+    }
+  }
+
+  // Télécharger une nouvelle photo de profil
+  static Future<ApiResponse<String>> uploadProfileAvatar(
+    String userId, 
+    File imageFile
+  ) async {
+    try {
+      final response = await ApiServiceNew.uploadFile(
+        '/users/$userId/avatar',
+        imageFile,
+        fieldName: 'avatar'
+      );
+      return ApiResponse<String>.fromJson(
+        response, 
+        (data) => data['avatar_url'] as String
+      );
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors du téléchargement de la photo de profil.');
+    }
+  }
+
+  // Supprimer la photo de profil
+  static Future<ApiResponse<void>> deleteProfileAvatar(String userId) async {
+    try {
+      final responseData = await ApiServiceNew.delete('/users/$userId/avatar', 
+          requiresAuth: true);
+      return ApiResponse<void>.fromJson(responseData, (_) => null);
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la suppression de la photo de profil.');
+    }
+  }
+
+  // Mettre à jour les liens sociaux
+  static Future<ApiResponse<SocialLinks>> updateSocialLinks(
+    String userId, 
+    SocialLinksRequest request
+  ) async {
+    try {
+      final responseData = await ApiServiceNew.put('/users/$userId/social-links', 
+          body: request.toJson(), requiresAuth: true);
+      return ApiResponse<SocialLinks>.fromJson(
+        responseData, 
+        (data) => SocialLinks.fromJson(data as Map<String, dynamic>)
+      );
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la mise à jour des liens sociaux.');
+    }
+  }
+
+  // Vérifier la disponibilité d'un nom d'utilisateur
+  static Future<ApiResponse<bool>> checkUsernameAvailability(String username) async {
+    try {
+      final responseData = await ApiServiceNew.get('/users/check-username', 
+          queryParameters: {'username': username});
+      return ApiResponse<bool>.fromJson(
+        responseData, 
+        (data) => data['available'] as bool
+      );
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la vérification du nom d\'utilisateur.');
+    }
+  }
+
+  // Obtenir les statistiques utilisateur
+  static Future<ApiResponse<UserStats>> getUserStats(String userId) async {
+    try {
+      final responseData = await ApiServiceNew.get('/users/$userId/stats', 
+          requiresAuth: true);
+      return ApiResponse<UserStats>.fromJson(
+        responseData, 
+        (data) => UserStats.fromJson(data as Map<String, dynamic>)
+      );
+    } catch (e) {
+      if (e is ApiException) rethrow;
+      throw ApiException('Erreur lors de la récupération des statistiques.');
     }
   }
 }

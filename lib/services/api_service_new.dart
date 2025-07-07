@@ -85,31 +85,39 @@ class ApiService {
     }
   }
 
-  // Méthode POST avec gestion automatique du token
+  // Méthode POST
   static Future<Map<String, dynamic>> post(
-    String endpoint,
-    {Map<String, dynamic>? body, bool requiresAuth = false}
-  ) async {
+    String endpoint, 
+    Map<String, dynamic> data, {
+    bool requiresAuth = true,
+    Map<String, String>? additionalHeaders,
+  }) async {
     final url = Uri.parse('$_baseUrl$_apiVersion$endpoint');
-    final headers = requiresAuth ? await _getAuthHeaders() : _defaultHeaders;
+    final headers = requiresAuth ? await _getAuthHeaders() : Map<String, String>.from(_defaultHeaders);
+    
+    if (additionalHeaders != null) {
+      headers.addAll(additionalHeaders);
+    }
 
     try {
       final response = await _client.post(
         url,
         headers: headers,
-        body: body != null ? jsonEncode(body) : null,
+        body: jsonEncode(data),
       ).timeout(_timeout);
+      
       return _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  // Méthode PUT avec gestion automatique du token
+  // Méthode PUT
   static Future<Map<String, dynamic>> put(
-    String endpoint,
-    {Map<String, dynamic>? body, bool requiresAuth = false}
-  ) async {
+    String endpoint, 
+    Map<String, dynamic> data, {
+    bool requiresAuth = true,
+  }) async {
     final url = Uri.parse('$_baseUrl$_apiVersion$endpoint');
     final headers = requiresAuth ? await _getAuthHeaders() : _defaultHeaders;
 
@@ -117,19 +125,17 @@ class ApiService {
       final response = await _client.put(
         url,
         headers: headers,
-        body: body != null ? jsonEncode(body) : null,
+        body: jsonEncode(data),
       ).timeout(_timeout);
+      
       return _handleResponse(response);
     } catch (e) {
       throw _handleError(e);
     }
   }
 
-  // Méthode DELETE avec gestion automatique du token
-  static Future<Map<String, dynamic>> delete(
-    String endpoint,
-    {bool requiresAuth = true}
-  ) async {
+  // Méthode DELETE
+  static Future<Map<String, dynamic>> delete(String endpoint, {bool requiresAuth = true}) async {
     final url = Uri.parse('$_baseUrl$_apiVersion$endpoint');
     final headers = requiresAuth ? await _getAuthHeaders() : _defaultHeaders;
 
@@ -141,65 +147,46 @@ class ApiService {
     }
   }
 
-  // Méthode pour créer une requête multipart
-  static Future<http.MultipartRequest> createMultipartRequest(
-    String method,
+  // Méthode pour upload de fichiers avec multipart
+  static Future<ApiResponse<Map<String, dynamic>>> uploadFile(
     String endpoint,
-  ) async {
+    File file, {
+    String fieldName = 'file',
+    Map<String, String>? additionalFields,
+    bool requiresAuth = true,
+  }) async {
     final url = Uri.parse('$_baseUrl$_apiVersion$endpoint');
-    final request = http.MultipartRequest(method, url);
     
-    // Ajouter les headers d'authentification
-    final authHeaders = await _getAuthHeaders();
-    request.headers.addAll(authHeaders);
-    
-    // Retirer le Content-Type car il sera géré automatiquement par MultipartRequest
-    request.headers.remove('Content-Type');
-    
-    return request;
-  }
-
-  // Méthode pour créer un fichier multipart
-  static Future<http.MultipartFile> createMultipartFile(
-    String field,
-    String filePath,
-  ) async {
-    return await http.MultipartFile.fromPath(field, filePath);
-  }
-
-  // Méthode pour envoyer une requête multipart
-  static Future<Map<String, dynamic>> sendMultipartRequest(
-    http.MultipartRequest request,
-  ) async {
-    try {
-      final streamedResponse = await request.send().timeout(_timeout);
-      final response = await http.Response.fromStream(streamedResponse);
-      return _handleResponse(response);
-    } catch (e) {
-      throw _handleError(e);
-    }
-  }
-
-  // Méthode pour télécharger un fichier (ex: photo de profil)
-  static Future<ApiResponse<String>> uploadFile(
-    String endpoint,
-    File file,
-  ) async {
     try {
       // Créer une requête multipart
-      final request = await createMultipartRequest('POST', endpoint);
+      final request = http.MultipartRequest('POST', url);
       
-      // Ajouter le fichier à la requête
-      final fileMultipart = await createMultipartFile('file', file.path);
+      // Ajouter les headers d'authentification
+      if (requiresAuth) {
+        final prefs = await SharedPreferences.getInstance();
+        final token = prefs.getString('auth_token');
+        if (token != null) {
+          request.headers['Authorization'] = 'Bearer $token';
+        }
+      }
+      
+      // Ajouter le fichier
+      final fileMultipart = await http.MultipartFile.fromPath(fieldName, file.path);
       request.files.add(fileMultipart);
       
-      // Envoyer la requête
-      final response = await sendMultipartRequest(request);
+      // Ajouter des champs additionnels si fournis
+      if (additionalFields != null) {
+        request.fields.addAll(additionalFields);
+      }
       
-      return ApiResponse.success(response['data'], message: 'Fichier téléchargé avec succès.');
+      // Envoyer la requête
+      final streamedResponse = await request.send().timeout(_timeout);
+      final response = await http.Response.fromStream(streamedResponse);
+      
+      final responseData = _handleResponse(response);
+      return ApiResponse.success(responseData, message: 'Upload réussi');
     } catch (e) {
-      final apiError = _handleError(e);
-      return ApiResponse.error(apiError.message, statusCode: apiError.statusCode);
+      return ApiResponse.error(_handleError(e).message);
     }
   }
 
