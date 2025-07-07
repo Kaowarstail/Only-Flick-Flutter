@@ -1,4 +1,4 @@
-import '../models/user.dart';
+import '../models/user_models.dart';
 import 'api_service.dart';
 
 class UserService {

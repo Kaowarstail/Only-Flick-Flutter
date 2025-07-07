@@ -1,5 +1,5 @@
 import '../models/creator.dart';
-import '../models/user.dart';
+import '../models/user_models.dart';
 import 'api_service.dart';
 
 class CreatorService {

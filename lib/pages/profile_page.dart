@@ -4,7 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../models/content_models.dart';
-import '../services/content_service.dart';
+import '../models/user_models.dart';
+import '../services/content_api_service.dart';
 import 'become_creator_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -30,7 +31,7 @@ class _ProfilePageState extends State<ProfilePage> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final user = authProvider.user;
     
-    if (user != null && user.role == 'creator') {
+    if (user != null && user.role == UserRole.creator) {
       await _loadCreatorContents(user.id);
     }
   }
@@ -41,11 +42,35 @@ class _ProfilePageState extends State<ProfilePage> {
     });
 
     try {
-      final contents = await ContentService.getCreatorContents(creatorId);
-      setState(() {
-        creatorContents = contents;
-        isLoadingContents = false;
-      });
+      // Récupérer les contenus du créateur via l'API
+      final result = await ContentApiService.getContents(
+        creatorId: creatorId,
+        size: 50, // Récupérer plus de contenus pour le profil
+      );
+
+      if (result['success'] == true) {
+        final contents = result['contents'] as List<Content>;
+        
+        // Séparer les contenus gratuits et premium
+        final freeContents = contents.where((c) => !c.isPremium).toList();
+        final premiumContents = contents.where((c) => c.isPremium).toList();
+        
+        setState(() {
+          creatorContents = {
+            'free_content': {
+              'contents': freeContents,
+              'total': freeContents.length,
+            },
+            'premium_content': {
+              'contents': premiumContents,
+              'total': premiumContents.length,
+            },
+          };
+          isLoadingContents = false;
+        });
+      } else {
+        throw Exception(result['error'] ?? 'Erreur lors de la récupération des contenus');
+      }
     } catch (e) {
       setState(() {
         isLoadingContents = false;
@@ -144,7 +169,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    _buildStatItem('Publications', '0'),
+                    _buildStatItem('Publications', _getPublicationsCount().toString()),
                     _buildStatItem('Abonnés', '0'),
                     _buildStatItem('Abonnements', '0'),
                   ],
@@ -312,16 +337,15 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       const SizedBox(height: 16),
                       _buildInfoRow('ID', user.id),
-                      _buildInfoRow('Rôle', user.role ?? 'Utilisateur'),
+                      _buildInfoRow('Rôle', user.role.name),
                       _buildInfoRow('Créé le', _formatDate(user.createdAt)),
-                      if (user.updatedAt != null)
-                        _buildInfoRow('Modifié le', _formatDate(user.updatedAt!)),
+                      _buildInfoRow('Modifié le', _formatDate(user.updatedAt)),
                     ],
                   ),
                 ),
                 
                 // Publications grid for creators only
-                if (user.role == 'creator') ...[
+                if (user.role == UserRole.creator) ...[
                   const SizedBox(height: 24),
                   _buildPublicationsSection(),
                 ],
@@ -383,6 +407,15 @@ class _ProfilePageState extends State<ProfilePage> {
         ],
       ),
     );
+  }
+
+  int _getPublicationsCount() {
+    if (creatorContents == null) return 0;
+    
+    final freeContents = creatorContents!['free_content']['contents'] as List<Content>;
+    final premiumContents = creatorContents!['premium_content']['contents'] as List<Content>;
+    
+    return freeContents.length + premiumContents.length;
   }
 
   String _formatDate(DateTime date) {
@@ -599,16 +632,7 @@ class _ProfilePageState extends State<ProfilePage> {
             fit: StackFit.expand,
             children: [
               // Image ou placeholder
-              if (content.thumbnailUrl != null)
-                Image.network(
-                  content.thumbnailUrl!,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildContentPlaceholder(content);
-                  },
-                )
-              else
-                _buildContentPlaceholder(content),
+              _buildContentImage(content),
 
               // Premium badge
               if (content.isPremium)
@@ -665,6 +689,84 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
       ),
     );
+  }
+
+  Widget _buildContentImage(Content content) {
+    // Si c'est une image avec une URL media ou thumbnail, l'afficher
+    if (content.isImage && (content.mediaUrl != null || content.thumbnailUrl != null)) {
+      final imageUrl = content.thumbnailUrl ?? content.mediaUrl;
+      if (imageUrl != null && imageUrl.isNotEmpty) {
+        return Image.network(
+          imageUrl,
+          fit: BoxFit.cover,
+          loadingBuilder: (context, child, loadingProgress) {
+            if (loadingProgress == null) return child;
+            return Container(
+              color: Colors.grey.shade200,
+              child: Center(
+                child: CircularProgressIndicator(
+                  value: loadingProgress.expectedTotalBytes != null
+                      ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                      : null,
+                  strokeWidth: 2,
+                ),
+              ),
+            );
+          },
+          errorBuilder: (context, error, stackTrace) {
+            return _buildContentPlaceholder(content);
+          },
+        );
+      }
+    }
+
+    // Si c'est une vidéo avec une URL thumbnail, l'afficher
+    if (content.isVideo && content.thumbnailUrl != null && content.thumbnailUrl!.isNotEmpty) {
+      return Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.network(
+            content.thumbnailUrl!,
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return Container(
+                color: Colors.grey.shade200,
+                child: Center(
+                  child: CircularProgressIndicator(
+                    value: loadingProgress.expectedTotalBytes != null
+                        ? loadingProgress.cumulativeBytesLoaded / loadingProgress.expectedTotalBytes!
+                        : null,
+                    strokeWidth: 2,
+                  ),
+                ),
+              );
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return _buildContentPlaceholder(content);
+            },
+          ),
+          // Icône de lecture pour les vidéos
+          Center(
+            child: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.black.withOpacity(0.6),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Icon(
+                Icons.play_arrow,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    // Fallback vers le placeholder si pas d'image
+    return _buildContentPlaceholder(content);
   }
 
   Widget _buildContentPlaceholder(Content content) {

@@ -13,6 +13,7 @@ class AppRoutes {
   static const String forgotPassword = '/forgot-password';
   static const String resetPassword = '/reset-password';
   static const String home = '/home';
+  static const String contentUpload = '/content-upload';
 
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {

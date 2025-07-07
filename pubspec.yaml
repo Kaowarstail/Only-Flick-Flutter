@@ -48,6 +48,13 @@ dependencies:
   flutter_svg: ^2.0.10+1
   google_fonts: ^6.2.1
 
+  # Upload d'images
+  image_picker: ^1.0.7
+  dio: ^5.4.0
+  path: ^1.8.3
+  file_picker: ^6.1.1
+  http_parser: ^4.0.2
+
   # State management
   provider: ^6.1.1
 
