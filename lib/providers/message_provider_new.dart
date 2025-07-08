@@ -77,7 +77,7 @@ class MessageProvider extends ChangeNotifier {
   
   // WebSocket/connectivity getters
   bool get isWebSocketConnected => _webSocketService.isConnected;
-  bool get isOnline => _connectivityService.isOnline;
+  bool get isOnline => _connectivityService.isConnected;
   String get connectionStatus => _connectivityService.getStatusDescription();
   
   bool hasMoreMessages(String conversationId) => 
@@ -90,8 +90,6 @@ class MessageProvider extends ChangeNotifier {
       _typingUsers[conversationId] ?? [];
   String getUserPresence(String userId) => 
       _userPresence[userId] ?? 'offline';
-  bool isUserOnline(String userId) =>
-      _userPresence[userId] == 'online';
 
   // Initialization
   void _initialize() {
@@ -102,6 +100,11 @@ class MessageProvider extends ChangeNotifier {
   }
 
   void _setupCallbacks() {
+    // Setup notification callbacks
+    _notificationService.onConversationsUpdated = _onConversationsUpdated;
+    _notificationService.onMessagesUpdated = _onMessagesUpdated;
+    _notificationService.onUnreadCountUpdated = _onUnreadCountUpdated;
+    
     // Setup WebSocket callbacks
     _webSocketSubscription?.cancel();
     _webSocketSubscription = _webSocketService.eventStream.listen((event) {
@@ -339,11 +342,6 @@ class MessageProvider extends ChangeNotifier {
   }
 
   // Public API methods for UI
-
-  /// Load conversations (public method for compatibility)
-  Future<void> loadConversations() async {
-    await _loadConversations();
-  }
 
   /// Load messages for a conversation
   Future<void> loadMessages(String conversationId) async {
@@ -592,7 +590,7 @@ class MessageProvider extends ChangeNotifier {
     print('MessageProvider: Setting WebSocket enabled: $enabled');
     _isWebSocketEnabled = enabled;
     
-    if (enabled && _connectivityService.isOnline) {
+    if (enabled && _connectivityService.isConnected) {
       _webSocketService.connect();
     } else if (!enabled) {
       _webSocketService.disconnect();
@@ -617,9 +615,6 @@ class MessageProvider extends ChangeNotifier {
     _error = error;
     notifyListeners();
   }
-
-  /// Public setter for error (for debug purposes)
-  set error(String? error) => _setError(error);
 
   void _addMessageToConversation(String conversationId, Message message) {
     final messages = _messagesByConversation[conversationId] ?? [];

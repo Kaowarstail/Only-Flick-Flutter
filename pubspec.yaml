@@ -35,6 +35,9 @@ dependencies:
   # HTTP pour appeler ton API Go
   http: ^1.2.1
 
+  # WebSocket pour temps réel
+  web_socket_channel: ^2.4.0
+
   # Gestion des routes (optionnel si tu veux + de contrôle)
   go_router: ^13.2.2
 
@@ -48,11 +51,20 @@ dependencies:
   flutter_svg: ^2.0.10+1
   google_fonts: ^6.2.1
 
+  # State management
+  provider: ^6.1.2
+
+  # Connectivité réseau
+  connectivity_plus: ^5.0.2
+
+  # Notifications locales
+  flutter_local_notifications: ^17.2.2
+
+  # Gestion cycle de vie app
+  # lifecycle: ^0.1.0  # Commenté temporairement - problème de compatibilité
+
   # Image picker for media messages
   image_picker: ^1.0.7
-
-  # State management
-  provider: ^6.1.1
 
 
 dev_dependencies:

@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/message_provider.dart';
+import 'services/message_service.dart';
+import 'services/conversation_service.dart';
+import 'services/notification_service.dart';
+import 'services/websocket_service.dart';
+import 'services/connectivity_service.dart';
+import 'services/local_notification_service.dart';
 import 'pages/messaging/conversations_list_page.dart';
 import 'theme/app_theme.dart';
 
@@ -20,7 +26,14 @@ class OnlyFlickMessagingApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (context) => AuthProvider()),
-        ChangeNotifierProvider(create: (context) => MessageProvider()),
+        ChangeNotifierProvider(create: (context) => MessageProvider(
+          messageService: MessageService(),
+          conversationService: ConversationService(),
+          notificationService: NotificationService(),
+          webSocketService: WebSocketService(),
+          connectivityService: ConnectivityService(),
+          localNotificationService: LocalNotificationService(),
+        )),
       ],
       child: MaterialApp(
         title: 'OnlyFlick Messaging',
@@ -46,7 +59,7 @@ class _MessagingDemoPageState extends State<MessagingDemoPage> {
     // Initialize providers
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AuthProvider>().initAuth();
-      context.read<MessageProvider>().initialize();
+      // MessageProvider s'initialise automatiquement dans son constructeur
     });
   }
 

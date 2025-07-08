@@ -54,8 +54,18 @@ class _ConversationsListPageState extends State<ConversationsListPage>
   }
 
   void _initializeData() {
+    // Le MessageProvider s'initialise automatiquement
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<MessageProvider>().initialize();
+      _refreshConversations();
+    });
+  }
+
+  Future<void> _refreshConversations() async {
+    // Force reload by creating a new instance or triggering a refresh
+    // For now, we'll just trigger notifyListeners since conversations
+    // are loaded automatically in the constructor
+    setState(() {
+      // This will rebuild the widget
     });
   }
 

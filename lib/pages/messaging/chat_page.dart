@@ -124,7 +124,7 @@ class _ChatPageState extends State<ChatPage>
     messageProvider.sendMessage(
       widget.conversationId,
       text,
-      MessageType.text,
+      type: MessageType.text,
     ).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -148,7 +148,7 @@ class _ChatPageState extends State<ChatPage>
     messageProvider.sendMessage(
       widget.conversationId,
       '',
-      type,
+      type: type,
       mediaUrl: file.path,
     ).catchError((error) {
       ScaffoldMessenger.of(context).showSnackBar(
