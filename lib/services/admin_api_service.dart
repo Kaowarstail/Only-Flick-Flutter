@@ -45,30 +45,44 @@ class AdminApiService {
   }
 
   // Récupérer les signalements récents
-  static Future<List<dynamic>> getRecentReports() async {
+  static Future<List<dynamic>> getRecentReports({
+    int page = 1,
+    int limit = 20,
+    String? status,
+  }) async {
     try {
       final headers = await _getHeaders();
-      final response = await http.get(
-        Uri.parse('$baseUrl/api/v1/admin/reports'),
-        headers: headers,
-      );
+      
+      // Construire les paramètres de requête
+      final queryParams = <String, String>{
+        'page': page.toString(),
+        'limit': limit.toString(),
+      };
+      if (status != null && status.isNotEmpty) {
+        queryParams['status'] = status;
+      }
+
+      final uri = Uri.parse('$baseUrl/api/v1/admin/reports').replace(queryParameters: queryParams);
+      final response = await http.get(uri, headers: headers);
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['reports'] as List<dynamic>;
+        // Le backend Go renvoie directement un tableau de signalements
+        if (data is List) {
+          return data;
+        } else {
+          return data['reports'] as List<dynamic>? ?? [];
+        }
       } else if (response.statusCode == 401) {
         throw Exception('Session expirée. Veuillez vous reconnecter.');
-      } else if (response.statusCode == 403) {
-        // On continue même si l'accès est refusé (temporairement)
-        print('Note: Accès admin requis mais ignoré pour le développement');
-        // Renvoyer des données simulées
-        return generateMockReports();
       } else {
+        print('Erreur HTTP ${response.statusCode}: ${response.body}');
         throw Exception('Erreur lors de la récupération des signalements: ${response.statusCode}');
       }
     } catch (e) {
       print('Erreur AdminApiService.getRecentReports: $e');
-      throw Exception('Erreur de connexion: $e');
+      // En cas d'erreur de connexion, retourner une liste vide plutôt que de lancer une exception
+      return [];
     }
   }
 
@@ -76,14 +90,14 @@ class AdminApiService {
   static Future<bool> updateReportStatus({
     required int reportId,
     required String status,
-    required String action,
+    String? action,
   }) async {
     try {
       final headers = await _getHeaders();
       final body = json.encode({
         'report_id': reportId,
         'status': status,
-        'action': action,
+        if (action != null) 'action': action,
       });
 
       final response = await http.put(
@@ -97,13 +111,12 @@ class AdminApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Session expirée. Veuillez vous reconnecter.');
       } else {
-        // Temporairement désactivé pour le développement
-        print('Note: Code de statut ${response.statusCode} traité comme un succès');
-        return true;
+        print('Erreur HTTP ${response.statusCode}: ${response.body}');
+        return false;
       }
     } catch (e) {
       print('Erreur AdminApiService.updateReportStatus: $e');
-      throw Exception('Erreur de connexion: $e');
+      return false;
     }
   }
 

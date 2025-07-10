@@ -9,6 +9,7 @@ import '../widgets/admin/simple_overview_card.dart';
 import '../widgets/admin/growth_stats_widget.dart';
 import '../widgets/admin/user_management_widget.dart';
 import '../widgets/admin/content_management_widget.dart';
+import '../widgets/admin/reports_overview_widget.dart';
 
 class AdminDashboardPage extends StatefulWidget {
   const AdminDashboardPage({super.key});
@@ -354,8 +355,8 @@ class _AdminDashboardPageState extends State<AdminDashboardPage> {
   }
 
   Widget _buildReportsSection() {
-    return const Center(
-      child: Text('Section Signalements - À implémenter'),
+    return ReportsOverviewWidget(
+      reportStats: _dashboardData?.reportStats,
     );
   }
 
