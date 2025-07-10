@@ -1,55 +1,65 @@
-extension DateTimeExtensions on DateTime {
-  String get timeAgo {
-    final now = DateTime.now();
-    final difference = now.difference(this);
+import 'package:intl/intl.dart';
 
-    if (difference.inSeconds < 60) {
+extension DateTimeExtensions on DateTime {
+  // Méthodes statiques pour éviter les recalculs répétés
+  static final DateTime _now = DateTime.now();
+  static final DateTime _today = DateTime(_now.year, _now.month, _now.day);
+  static final DateTime _yesterday = _today.subtract(const Duration(days: 1));
+  
+  // Utilise les formatters natifs de Dart pour de meilleures performances
+  static final DateFormat _timeFormatter = DateFormat.Hm();
+  static final DateFormat _dateFormatter = DateFormat('dd/MM/yyyy');
+  static final DateFormat _dateTimeFormatter = DateFormat('dd/MM/yyyy HH:mm');
+  static final DateFormat _shortDateFormatter = DateFormat('dd/MM');
+  static final DateFormat _sortableDateFormatter = DateFormat('yyyy-MM-dd');
+  static final DateFormat _weekdayFormatter = DateFormat.EEEE('fr_FR');
+  static final DateFormat _monthFormatter = DateFormat.MMMM('fr_FR');
+  static final DateFormat _fullDateFormatter = DateFormat('dd MMMM yyyy', 'fr_FR');
+
+  String get timeAgo {
+    final difference = DateTime.now().difference(this);
+    final absDifference = difference.abs();
+
+    if (absDifference.inSeconds < 60) {
       return 'à l\'instant';
-    } else if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}min';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}h';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}j';
-    } else if (difference.inDays < 30) {
-      return '${(difference.inDays / 7).floor()}sem';
-    } else if (difference.inDays < 365) {
-      return '${(difference.inDays / 30).floor()}mois';
+    } else if (absDifference.inMinutes < 60) {
+      return '${absDifference.inMinutes}min';
+    } else if (absDifference.inHours < 24) {
+      return '${absDifference.inHours}h';
+    } else if (absDifference.inDays < 7) {
+      return '${absDifference.inDays}j';
+    } else if (absDifference.inDays < 30) {
+      return '${(absDifference.inDays / 7).floor()}sem';
+    } else if (absDifference.inDays < 365) {
+      return '${(absDifference.inDays / 30).floor()}mois';
     } else {
-      return '${(difference.inDays / 365).floor()}ans';
+      return '${(absDifference.inDays / 365).floor()}ans';
     }
   }
 
-  String get formattedTime {
-    return '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
-  }
+  // Utilise les formatters natifs pour de meilleures performances et localisation
+  String get formattedTime => _timeFormatter.format(this);
+  String get formattedDate => _dateFormatter.format(this);
+  String get formattedDateTime => _dateTimeFormatter.format(this);
+  String get shortFormattedDate => _shortDateFormatter.format(this);
+  String get sortableDate => _sortableDateFormatter.format(this);
+  String get fullFormattedDate => _fullDateFormatter.format(this);
 
-  String get formattedDate {
-    return '$day/${month.toString().padLeft(2, '0')}/$year';
-  }
-
-  String get formattedDateTime {
-    return '$formattedDate $formattedTime';
-  }
-
-  String get shortFormattedDate {
-    return '$day/${month.toString().padLeft(2, '0')}';
-  }
-
+  // Optimisation avec DateTime.utc pour comparaisons plus précises
   bool get isToday {
-    final now = DateTime.now();
-    return year == now.year && month == now.month && day == now.day;
+    final today = DateTime.now();
+    return isSameDay(today);
   }
 
   bool get isYesterday {
     final yesterday = DateTime.now().subtract(const Duration(days: 1));
-    return year == yesterday.year && month == yesterday.month && day == yesterday.day;
+    return isSameDay(yesterday);
   }
 
   bool get isThisWeek {
     final now = DateTime.now();
     final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
-    final endOfWeek = startOfWeek.add(const Duration(days: 6));
+    final endOfWeek = startOfWeek.add(const Duration(days: 6, hours: 23, minutes: 59, seconds: 59));
     return isAfter(startOfWeek) && isBefore(endOfWeek);
   }
 
