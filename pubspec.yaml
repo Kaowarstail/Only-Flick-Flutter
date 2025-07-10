@@ -44,6 +44,9 @@ dependencies:
   # Chargement d'environnement (.env)
   flutter_dotenv: ^5.1.0
 
+  # Internationalisation et formatage de dates (natif Flutter)
+  intl: ^0.20.2
+
   # UI responsive & stylée
   flutter_svg: ^2.0.10+1
   google_fonts: ^6.2.1
