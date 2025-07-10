@@ -303,12 +303,6 @@ class AdminApiService {
     String? creatorId,
   }) async {
     try {
-      // Temporairement, utiliser directement les données de mock pour éviter l'erreur
-      // "Failed to fetch" car la route admin/contents n'est pas encore implémentée côté backend
-      print('Note: Utilisation des données simulées pour les contenus (route backend non disponible)');
-      return generateMockContentData(page, limit, status, type);
-      
-      /* Code original commenté en attendant l'implémentation backend
       final headers = await _getHeaders();
       final queryParams = <String, String>{
         'page': page.toString(),
@@ -328,14 +322,10 @@ class AdminApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Session expirée. Veuillez vous reconnecter.');
       } else if (response.statusCode == 403) {
-        // On continue même si l'accès est refusé (temporairement)
-        print('Note: Accès admin requis mais ignoré pour le développement');
-        // Générer des données simulées pour le développement
-        return generateMockContentData(page, limit, status, type);
+        throw Exception('Accès refusé. Permissions administrateur requises.');
       } else {
         throw Exception('Erreur lors de la récupération des contenus: ${response.statusCode}');
       }
-      */
     } catch (e) {
       print('Erreur AdminApiService.getContents: $e');
       throw Exception('Erreur de connexion: $e');
@@ -345,12 +335,6 @@ class AdminApiService {
   // Récupérer les détails d'un contenu
   static Future<AdminContentDetails?> getContentDetails(String contentId) async {
     try {
-      // Temporairement, utiliser directement les données de mock pour éviter l'erreur
-      // "Failed to fetch" car la route admin/contents/{id} n'est pas encore implémentée côté backend
-      print('Note: Utilisation des données simulées pour les détails du contenu (route backend non disponible)');
-      return generateMockContentDetails(contentId);
-      
-      /* Code original commenté en attendant l'implémentation backend
       final headers = await _getHeaders();
       final response = await http.get(
         Uri.parse('$baseUrl/api/v1/admin/contents/$contentId'),
@@ -363,14 +347,10 @@ class AdminApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Session expirée. Veuillez vous reconnecter.');
       } else if (response.statusCode == 403) {
-        // On continue même si l'accès est refusé (temporairement)
-        print('Note: Accès admin requis mais ignoré pour le développement');
-        // Générer des données simulées pour le développement
-        return generateMockContentDetails(contentId);
+        throw Exception('Accès refusé. Permissions administrateur requises.');
       } else {
         throw Exception('Erreur lors de la récupération des détails du contenu: ${response.statusCode}');
       }
-      */
     } catch (e) {
       print('Erreur AdminApiService.getContentDetails: $e');
       throw Exception('Erreur de connexion: $e');
@@ -384,11 +364,6 @@ class AdminApiService {
     String? reason,
   }) async {
     try {
-      // Temporairement, simuler une réussite car la route n'est pas encore implémentée
-      print('Note: Simulation d\'une mise à jour de statut réussie (route backend non disponible)');
-      return true;
-      
-      /* Code original commenté en attendant l'implémentation backend
       final headers = await _getHeaders();
       final body = json.encode({
         'content_id': contentId,
@@ -407,13 +382,10 @@ class AdminApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Session expirée. Veuillez vous reconnecter.');
       } else if (response.statusCode == 403) {
-        // On continue même si l'accès est refusé (temporairement)
-        print('Note: Accès admin requis mais ignoré pour le développement');
-        return true;
+        throw Exception('Accès refusé. Permissions administrateur requises.');
       } else {
         throw Exception('Erreur lors de la mise à jour du statut du contenu: ${response.statusCode}');
       }
-      */
     } catch (e) {
       print('Erreur AdminApiService.updateContentStatus: $e');
       throw Exception('Erreur de connexion: $e');
@@ -442,9 +414,7 @@ class AdminApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Session expirée. Veuillez vous reconnecter.');
       } else if (response.statusCode == 403) {
-        // On continue même si l'accès est refusé (temporairement)
-        print('Note: Accès admin requis mais ignoré pour le développement');
-        return true;
+        throw Exception('Accès refusé. Permissions administrateur requises.');
       } else {
         throw Exception('Erreur lors de la suppression du contenu: ${response.statusCode}');
       }
@@ -577,9 +547,7 @@ class AdminApiService {
       } else if (response.statusCode == 401) {
         throw Exception('Session expirée. Veuillez vous reconnecter.');
       } else if (response.statusCode == 403) {
-        // On continue même si l'accès est refusé (temporairement)
-        print('Note: Accès admin requis mais ignoré pour le développement');
-        return true;
+        throw Exception('Accès refusé. Permissions administrateur requises.');
       } else {
         throw Exception('Erreur lors de la mise à jour du contenu: ${response.statusCode}');
       }
