@@ -7,6 +7,7 @@ import '../models/content_models.dart';
 import '../models/user_models.dart';
 import '../services/content_api_service.dart';
 import 'become_creator_page.dart';
+import 'admin_dashboard_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -263,6 +264,35 @@ class _ProfilePageState extends State<ProfilePage> {
                         ),
                       ),
                     ],
+                    // Bouton dashboard admin (accessible à tous les utilisateurs)
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => const AdminDashboardPage(),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.admin_panel_settings),
+                        label: Text(
+                          'Dashboard Administrateur',
+                          style: GoogleFonts.inter(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red.shade600,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 32),

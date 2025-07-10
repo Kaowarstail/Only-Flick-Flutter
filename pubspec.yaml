@@ -48,6 +48,9 @@ dependencies:
   flutter_svg: ^2.0.10+1
   google_fonts: ^6.2.1
 
+  # Charts pour le dashboard admin
+  fl_chart: ^0.68.0
+
   # Upload d'images
   image_picker: ^1.0.7
   dio: ^5.4.0
