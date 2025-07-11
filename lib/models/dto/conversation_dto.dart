@@ -63,6 +63,7 @@ class ConversationsResponse {
       'has_more': hasMore,
     };
   }
+<<<<<<< HEAD
 
   // Helper pour obtenir les statistiques
   int get totalUnreadMessages {
@@ -79,5 +80,38 @@ class ConversationsResponse {
     final sorted = List<Conversation>.from(conversations);
     sorted.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return sorted;
+=======
+}
+
+class ConversationStatsResponse {
+  final int totalConversations;
+  final int activeConversations;
+  final int unreadConversations;
+  final int totalUnreadMessages;
+
+  ConversationStatsResponse({
+    required this.totalConversations,
+    required this.activeConversations,
+    required this.unreadConversations,
+    required this.totalUnreadMessages,
+  });
+
+  factory ConversationStatsResponse.fromJson(Map<String, dynamic> json) {
+    return ConversationStatsResponse(
+      totalConversations: json['total_conversations'] ?? json['totalConversations'] ?? 0,
+      activeConversations: json['active_conversations'] ?? json['activeConversations'] ?? 0,
+      unreadConversations: json['unread_conversations'] ?? json['unreadConversations'] ?? 0,
+      totalUnreadMessages: json['total_unread_messages'] ?? json['totalUnreadMessages'] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'total_conversations': totalConversations,
+      'active_conversations': activeConversations,
+      'unread_conversations': unreadConversations,
+      'total_unread_messages': totalUnreadMessages,
+    };
+>>>>>>> 9e6ce054e4dab9a259c45349328c263edf321aab
   }
 }

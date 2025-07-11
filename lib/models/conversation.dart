@@ -50,6 +50,7 @@ class Conversation {
     };
   }
 
+<<<<<<< HEAD
   // Helper pour obtenir l'autre participant (pas l'utilisateur actuel)
   User? getOtherParticipant(String currentUserId) {
     return participants.firstWhere(
@@ -85,6 +86,8 @@ class Conversation {
   bool get hasUnreadMessages => unreadCount > 0;
 
   // Copie avec modifications
+=======
+>>>>>>> 9e6ce054e4dab9a259c45349328c263edf321aab
   Conversation copyWith({
     String? id,
     List<User>? participants,
@@ -105,6 +108,7 @@ class Conversation {
     );
   }
 
+<<<<<<< HEAD
   // Réduire le nombre de messages non lus
   Conversation markAsRead() {
     return copyWith(unreadCount: 0);
@@ -127,4 +131,65 @@ class Conversation {
     // Pour l'instant, on retourne une chaîne vide
     return '';
   }
+=======
+  // Helper methods
+  User? getOtherParticipant(String currentUserId) {
+    try {
+      return participants.firstWhere((p) => p.id != currentUserId);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  bool isParticipant(String userId) {
+    return participants.any((p) => p.id == userId);
+  }
+
+  bool get hasUnreadMessages => unreadCount > 0;
+
+  String getDisplayTitle(String? currentUserId) {
+    if (participants.length == 2 && currentUserId != null) {
+      final otherUser = getOtherParticipant(currentUserId);
+      return otherUser?.displayName ?? 'Conversation';
+    }
+    return 'Conversation';
+  }
+
+  String? get displaySubtitle {
+    if (lastMessage != null) {
+      return lastMessage!.shortDisplayContent;
+    }
+    return null;
+  }
+
+  String get formattedUpdateTime {
+    final now = DateTime.now();
+    final difference = now.difference(updatedAt);
+
+    if (difference.inMinutes < 1) {
+      return 'maintenant';
+    } else if (difference.inHours < 1) {
+      return '${difference.inMinutes}min';
+    } else if (difference.inDays < 1) {
+      return '${difference.inHours}h';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}j';
+    } else {
+      return '${updatedAt.day}/${updatedAt.month}';
+    }
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Conversation &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'Conversation(id: $id, participants: ${participants.length}, unread: $unreadCount)';
+>>>>>>> 9e6ce054e4dab9a259c45349328c263edf321aab
 }
