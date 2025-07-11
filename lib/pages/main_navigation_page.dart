@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
 import 'home_page.dart';
 import 'profile_page.dart';
+import 'conversations_page.dart';
 
 class MainNavigationPage extends StatefulWidget {
   const MainNavigationPage({super.key});
@@ -17,6 +18,7 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
   final List<Widget> _pages = [
     const HomePage(),
     const ExplorePage(),
+    const ConversationsPage(),
     const FavoritesPage(),
     const ProfilePage(),
   ];
@@ -59,16 +61,22 @@ class _MainNavigationPageState extends State<MainNavigationPage> {
                   index: 1,
                 ),
                 _buildNavItem(
+                  icon: Icons.message_outlined,
+                  activeIcon: Icons.message,
+                  label: 'Messages',
+                  index: 2,
+                ),
+                _buildNavItem(
                   icon: Icons.favorite_outline,
                   activeIcon: Icons.favorite,
                   label: 'Favoris',
-                  index: 2,
+                  index: 3,
                 ),
                 _buildNavItem(
                   icon: Icons.person_outline,
                   activeIcon: Icons.person,
                   label: 'Profil',
-                  index: 3,
+                  index: 4,
                 ),
               ],
             ),

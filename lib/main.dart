@@ -4,8 +4,10 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/content_interaction_provider.dart';
+import 'providers/messaging_provider.dart';
 import 'services/content_interaction_service.dart';
 import 'services/cloudinary_service.dart';
+import 'services/messaging_service.dart';
 import 'routes/app_routes.dart';
 import 'pages/auth/login_page.dart';
 import 'pages/instagram_style_home_page.dart';
@@ -29,6 +31,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()..initAuth()),
         ChangeNotifierProvider(create: (_) => ContentInteractionProvider()),
         ChangeNotifierProvider(create: (_) => ContentInteractionService()),
+        ChangeNotifierProvider(
+          create: (_) => MessagingProvider(MessagingService()),
+        ),
         // Ajout du service CloudinaryService (via Provider.value car ce n'est pas un ChangeNotifier)
         Provider.value(
           value: CloudinaryService(
